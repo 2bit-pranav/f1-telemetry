@@ -1,0 +1,82 @@
+# =========================
+# GENERAL
+# =========================
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+.vscode/
+.idea/
+
+# =========================
+# ENV FILES (DO NOT LEAK THESE)
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# NODE / REACT (client)
+# =========================
+client/node_modules/
+client/build/
+client/dist/
+client/.next/
+client/out/
+
+# logs
+client/npm-debug.log*
+client/yarn-debug.log*
+client/yarn-error.log*
+client/pnpm-debug.log*
+
+# env files inside client
+client/.env*
+!client/.env.example
+
+# =========================
+# PYTHON / FASTAPI (server)
+# =========================
+# bytecode
+server/__pycache__/
+server/*.py[cod]
+server/*$py.class
+
+# virtual environments
+server/venv/
+server/.venv/
+server/env/
+
+# distribution
+server/build/
+server/dist/
+server/*.egg-info/
+
+# logs
+server/*.log
+
+# pytest / coverage
+server/.pytest_cache/
+server/.coverage
+server/htmlcov/
+
+# =========================
+# DATABASES (if local)
+# =========================
+*.sqlite3
+*.db
+
+# =========================
+# UPLOADS / GENERATED FILES
+# =========================
+uploads/
+media/
+
+# =========================
+# MISC
+# =========================
+*.zip
+*.tar
+*.gz
+*.rar
