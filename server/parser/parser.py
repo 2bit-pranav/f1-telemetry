@@ -7,7 +7,6 @@ MY_IP = "127.0.0.1"
 GAME_PORT = 20777
 TIMEOUT = 10.0
 
-
 def start_telemetry_loop(telemetry_queue: asyncio.Queue, loop: asyncio.AbstractEventLoop) -> None:
     # flag for participants data (to be sent only once)
     once_flag = False

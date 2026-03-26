@@ -1,42 +1,149 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* App.css */
+body {
+  margin: 0;
+  background-color: #121212;
+  color: #ffffff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden; /* Prevents the whole page from scrolling */
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 15px;
+  box-sizing: border-box;
+  gap: 15px;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Header Styles */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1e1e1e;
+  padding: 15px 25px;
+  border-radius: 8px;
+  border: 1px solid #333;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.race-info h1 { margin: 0; font-size: 1.5rem; }
+.race-info p { margin: 5px 0 0 0; color: #aaa; }
+.status-indicator { font-weight: bold; font-size: 1.1rem; }
+
+/* Main Content Layout */
+.main-content {
+  display: flex;
+  gap: 15px;
+  flex: 1;
+  min-height: 0; /* CRITICAL FLEXBOX FIX */
 }
 
-.card {
-  padding: 2em;
+/* Timing Tower Styles */
+.timing-tower-container {
+  flex: 2;
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  border: 1px solid #333;
+  overflow-y: auto;
 }
 
-.read-the-docs {
+.timing-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.timing-table th {
+  background-color: #2a2a2a;
+  padding: 12px;
+  position: sticky;
+  top: 0;
   color: #888;
+  font-weight: normal;
+  font-size: 0.9rem;
+  z-index: 10;
 }
+
+.timing-table td {
+  padding: 12px;
+  border-bottom: 1px solid #2a2a2a;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 0.95rem;
+}
+
+.timing-table tr:hover { background-color: #2a2a2a; }
+
+/* Car Telemetry Styles */
+.telemetry-sidebar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  min-height: 0; /* CRITICAL FLEXBOX FIX */
+}
+
+.telemetry-card {
+  flex: 1;
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  border: 1px solid #333;
+  padding: 15px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 0; /* CRITICAL FLEXBOX FIX */
+}
+
+.telemetry-placeholder {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  margin: auto;
+}
+
+.tel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.tel-header h2 { margin: 5px 0 0 0; font-size: 1.4rem; }
+.tel-number { font-size: 1.5rem; font-weight: bold; }
+
+/* Dynamic Bars */
+.input-row { margin-bottom: 8px; }
+.input-row span { display: block; margin-bottom: 4px; color: #aaa; font-size: 0.85rem; }
+
+.bar-bg {
+  width: 100%;
+  height: 20px;
+  background-color: #333;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  transition: width 0.05s linear;
+}
+.throttle-fill { background-color: #00ff00; }
+.brake-fill { background-color: #ff0000; }
+
+/* Bottom Stats */
+.tel-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+  padding-top: 10px;
+  border-top: 1px solid #333;
+}
+
+.stat-box { text-align: center; }
+.stat-box .label { display: block; color: #aaa; font-size: 0.75rem; margin-bottom: 3px; }
+.stat-box .value { font-size: 1.1rem; font-weight: bold; }
+
+.drs-off { color: #555; }
+.drs-on { color: #00ff00; }
