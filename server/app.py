@@ -2,7 +2,7 @@ from fastapi import FastAPI, WebSocket
 from fastapi.websockets import WebSocketDisconnect
 from contextlib import asynccontextmanager
 import asyncio
-from parser import start_telemetry_loop
+from telemetry_parser import start_telemetry_loop
 
 class ConnectionManager:
     def __init__(self):
@@ -19,14 +19,14 @@ class ConnectionManager:
 
     async def broadcast(self, msg: str):
         for connection in self.active_connections:
-            connection.send_text(msg)
+            await connection.send_text(msg)
 
 manager = ConnectionManager()
-telemetry_queue = asyncio.Queue
+telemetry_queue = asyncio.Queue()
 
 async def broadcast_from_queue():
     while True:
-        json_msg = telemetry_queue.get()
+        json_msg = await telemetry_queue.get()
         await manager.broadcast(json_msg)
 
 @asynccontextmanager

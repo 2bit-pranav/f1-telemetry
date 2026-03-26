@@ -8,8 +8,6 @@ GAME_PORT = 20777
 TIMEOUT = 10.0
 
 def start_telemetry_loop(telemetry_queue: asyncio.Queue, loop: asyncio.AbstractEventLoop) -> None:
-    # flag for participants data (to be sent only once)
-    once_flag = False
     # simple counter for motion data (to be sent on every 6th increment)
     motion_count = 0
 
@@ -24,9 +22,8 @@ def start_telemetry_loop(telemetry_queue: asyncio.Queue, loop: asyncio.AbstractE
             udp_packet = game_socket.recv(2048)
             packet = unpack_udp_packet(udp_packet)
 
-            # PACKET 4: PARTICIPANTS (ONE-TIME)
-            if once_flag is not True and packet.header.packetId == 4:
-                once_flag = True
+            # PACKET 4: PARTICIPANTS
+            if packet.header.packetId == 4:
                 participants = []
 
                 for i in range(0, 20):
@@ -54,35 +51,60 @@ def start_telemetry_loop(telemetry_queue: asyncio.Queue, loop: asyncio.AbstractE
 
             # PACKET 2: LAP DATA
             elif packet.header.packetId == 2:
-                lap_data = []
-
                 raw_data = packet.lapData
+                extracted_cars = []
+                
+                # 1. Extract and calculate Sector "Tick" Logic
                 for i in range(0, 20):
-                    lt = raw_data[i].currentLapTime
-                    s1 = raw_data[i].sector1TimeInMS / 1000.0
-                    s2 = raw_data[i].sector2TimeInMS / 1000.0
-                    s3 = lt - (s1 + s2)
-                    td = raw_data[i].totalDistance
                     p = raw_data[i].carPosition
-
-                    lap_data.append(
-                        {
-                            "i": i,
-                            "p": p,
-                            "s1": s1,
-                            "s2": s2,
-                            "s3": s3,
-                            "lt": lt,
-                            "td": td,
-                        }
-                )
+                    td = raw_data[i].totalDistance
+                    c_lap = raw_data[i].currentLapTime
+                    lt = raw_data[i].lastLapTime # Use the ACTUAL last lap time
+                    
+                    s1_ms = raw_data[i].sector1TimeInMS
+                    s2_ms = raw_data[i].sector2TimeInMS
+                    
+                    if s1_ms == 0:
+                        # Car is currently IN Sector 1
+                        s1 = c_lap
+                        s2 = 0.0
+                        s3 = 0.0
+                    elif s2_ms == 0:
+                        # Car is currently IN Sector 2
+                        s1 = s1_ms / 1000.0
+                        s2 = c_lap - s1
+                        s3 = 0.0
+                    else:
+                        # Car is currently IN Sector 3
+                        s1 = s1_ms / 1000.0
+                        s2 = s2_ms / 1000.0
+                        s3 = c_lap - (s1 + s2)
+                        
+                    extracted_cars.append({
+                        "i": i, "p": p, "s1": s1, "s2": s2, "s3": s3, "lt": lt, "td": td
+                    })
+                
+                # 2. Sort the grid by Position to calculate Intervals
+                sorted_cars = sorted(extracted_cars, key=lambda x: x["p"])
+                
+                for idx, car in enumerate(sorted_cars):
+                    # P1 gets the 'Leader' tag (interval = 0.0)
+                    if car["p"] == 1 or idx == 0:
+                        car["interval"] = 0.0
+                    else:
+                        # P2-P20 calculate interval to the car directly ahead
+                        car_ahead = sorted_cars[idx - 1]
+                        dist_gap = car_ahead["td"] - car["td"]
+                        
+                        # Time = Distance / Speed (75 m/s is a solid F1 baseline)
+                        car["interval"] = max(0.0, dist_gap / 75.0) 
 
                 lap_telemetry = {
                     "type": "lap_telemetry",
-                    "data": lap_data,
+                    "data": sorted_cars, # We send the pre-sorted list!
                 }
 
-                json_msg = json.dumps(lap_telemetry) + "\n"
+                json_msg = json.dumps(lap_telemetry)
                 loop.call_soon_threadsafe(telemetry_queue.put_nowait, json_msg)
 
             # PACKET 6: CAR TELEMETRY (PLAYER ONLY)
@@ -131,7 +153,8 @@ def start_telemetry_loop(telemetry_queue: asyncio.Queue, loop: asyncio.AbstractE
                 }
 
                 json_msg = json.dumps(motion_telemetry) + "\n"
-                loop.call_soon_threadsafe(telemetry_queue.put_nowait, json_msg) 
+                loop.call_soon_threadsafe(telemetry_queue.put_nowait, json_msg)
+                print("### SENDING DATA ###")
 
         except socket.timeout:
             print("### NO DATA FROM GAME ###")

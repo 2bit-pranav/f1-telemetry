@@ -2,6 +2,16 @@ import React from "react";
 import { TEAM_COLORS } from "../constants";
 
 function CarTelemetry({ data }) {
+    if (data === "disabled") {
+        return (
+            <div className="telemetry-card">
+                <div className="telemetry-placeholder">
+                    Coming Soon
+                </div>
+            </div>
+        );
+    }
+    
     if (!data) {
         return (
             <div className="telemetry-card">
